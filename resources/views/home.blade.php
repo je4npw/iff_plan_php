@@ -1,43 +1,64 @@
-@include('layouts.app')
+@extends('layouts.app')
 
-<header class="bg-blue-600 text-white p-4 shadow-md">
-    <nav class="container mx-auto flex justify-between items-center">
-        <a href="/" class="text-xl font-bold">IFF Plan</a>
-        <ul class="flex space-x-4">
-            <li>
-                @auth
-                    <form method="POST" action="{{ url('logout') }}">
-                        @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-                            Logout
-                        </button>
-                    </form>
-                @endauth
-            </li>
-        </ul>
-    </nav>
-</header>
+@section('content')
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold text-center mb-8">Dashboard</h1>
 
-<main class="flex-grow container mx-auto p-6">
-    <section class="bg-white shadow-md rounded p-6 text-center">
-        <h1 class="text-2xl font-bold text-gray-700">Bem-vindo à Aplicação!</h1>
+        <div class="grid grid-cols-3 gap-6">
+            <!-- Card 1 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Usuários Ativos</h2>
+                <p class="text-gray-600 text-lg">1,234</p>
+            </div>
 
-        @auth
-            <p class="mt-4 text-lg text-gray-600">Olá, {{ auth()->user()->name }}! Você está autenticado.</p>
-        @else
-            <p class="mt-4 text-lg text-gray-600">
-                Você não está logado.
-                <a href="{{ route('login') }}" class="text-blue-500 hover:text-blue-600">Faça login</a>
-                ou
-                <a href="{{ url('register') }}" class="text-blue-500 hover:text-blue-600">registre-se</a>.
-            </p>
-        @endauth
-    </section>
-</main>
+            <!-- Card 2 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Vendas Hoje</h2>
+                <p class="text-gray-600 text-lg">R$ 12,345.67</p>
+            </div>
 
-<footer class="bg-gray-800 text-white text-center p-4">
-    <p>&copy; {{ date('Y') }} - Minha Aplicação</p>
-</footer>
+            <!-- Card 3 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Novos Cadastros</h2>
+                <p class="text-gray-600 text-lg">567</p>
+            </div>
 
-</body>
-</html>
+            <!-- Card 4 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Comentários</h2>
+                <p class="text-gray-600 text-lg">89</p>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Transações Pendentes</h2>
+                <p class="text-gray-600 text-lg">45</p>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Lucro Mensal</h2>
+                <p class="text-gray-600 text-lg">R$ 98,765.43</p>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Pedidos em Aberto</h2>
+                <p class="text-gray-600 text-lg">23</p>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Tickets Suporte</h2>
+                <p class="text-gray-600 text-lg">7</p>
+            </div>
+
+            <!-- Card 9 -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Novos Leads</h2>
+                <p class="text-gray-600 text-lg">345</p>
+            </div>
+        </div>
+    </div>
+@endsection
+

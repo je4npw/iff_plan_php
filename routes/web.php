@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ExcelController;
 
 //login
 Route::get('/', function () {
@@ -35,3 +36,7 @@ Route::get('/home', function () {
 
 //users
 Route::resource('users', UserController::class);
+
+//excel
+Route::get('/upload', [ExcelController::class, 'showForm'])->name('upload.form');
+Route::post('/upload', [ExcelController::class, 'upload'])->name('upload');

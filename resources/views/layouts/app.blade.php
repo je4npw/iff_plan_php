@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
+@include('layouts.header')
 <div class="container mx-auto">
     @yield('content')
 </div>
