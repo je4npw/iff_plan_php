@@ -1,10 +1,10 @@
 <header class="bg-green-900 text-white p-4 shadow-md">
     <nav class="container mx-auto flex justify-between items-center">
         <div class="flex flex-row gap-5">
-            <a href="/home" class="text-xl font-bold">IFF Plan |></a>
+            <a href="<?php echo(getenv('APP_URL') . "/home") ?>" class="text-xl font-bold">IFF Plan |></a>
             <ul>
                 <li>
-                    <a class="text-xl" href="/users">Usuários</a>
+                    <a class="text-xl" href="<?php echo(getenv('APP_URL') . "/users") ?>">Usuários</a>
                 </li>
             </ul>
         </div>
