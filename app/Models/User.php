@@ -20,6 +20,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // Adicionar a permissão de admin
     ];
 
     /**
@@ -43,5 +44,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Verifica se o usuário é admin
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    // Verifica se o usuário tem permissão de edição
+    public function isEditor()
+    {
+        return $this->role === 'edit';
+    }
+
+    // Verifica se o usuário tem permissão de visualização
+    public function isViewer()
+    {
+        return $this->role === 'view';
+    }
+
+    // Verifica se o usuário não tem permissões
+    public function hasNoPermissions()
+    {
+        return $this->role === 'none';
     }
 }
