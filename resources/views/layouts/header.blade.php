@@ -1,10 +1,14 @@
 <header class="bg-green-900 text-white p-4 shadow-md">
     <nav class="container mx-auto flex justify-between items-center">
         <div class="flex flex-row gap-5">
-            <a href="<?php echo(getenv('APP_URL') . "/home") ?>" class="text-xl font-bold">IFF Plan |></a>
-            <ul>
+            <a href="{{route('home')}}" class="text-xl font-bold">IFF Plan |></a>
+            <ul class="flex flex-row gap-2">
                 <li>
-                    <a class="text-xl" href="<?php echo(getenv('APP_URL') . "/users") ?>">Usuários</a>
+                    <a class="text-xl" href="{{route('users.index')}}">Usuários</a>
+                </li>
+                <li>
+                    <a class="text-xl" href="{{route('upload')}}">Upload</a>
+
                 </li>
             </ul>
         </div>
