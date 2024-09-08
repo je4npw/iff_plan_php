@@ -47,25 +47,25 @@ class User extends Authenticatable
     }
 
     // Verifica se o usuário é admin
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
     // Verifica se o usuário tem permissão de edição
-    public function isEditor()
+    public function isEditor(): bool
     {
         return $this->role === 'edit';
     }
 
     // Verifica se o usuário tem permissão de visualização
-    public function isViewer()
+    public function isViewer(): bool
     {
         return $this->role === 'view';
     }
 
     // Verifica se o usuário não tem permissões
-    public function hasNoPermissions()
+    public function hasNoPermissions(): bool
     {
         return $this->role === 'none';
     }

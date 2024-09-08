@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Acolhido;
+use Carbon\Carbon;
+use DOMDocument;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use DOMDocument;
 
 class ExcelController extends Controller
 {
@@ -16,31 +17,41 @@ class ExcelController extends Controller
 
     public function upload(Request $request)
     {
-        // Validação do arquivo
         $request->validate([
-            'file' => 'required|file|max:2048',
+            'file' => 'required|file|mimes:html|max:2048',
         ]);
 
-        // Salvar o arquivo no storage
         $file = $request->file('file');
-        $path = $file->store('excel_uploads', 'public');
 
-        // Obter o caminho completo do arquivo salvo
-        $fullPath = storage_path('app/public/' . $path);
-
-        if (!file_exists($fullPath)) {
-            return redirect()->route('upload.form')->with('error', 'Arquivo não encontrado.');
-        }
+        $fileContent = $file->get();
 
         try {
-            // Ler o conteúdo HTML do arquivo
-            $htmlContent = file_get_contents($fullPath);
 
-            // Inicializa o objeto DOMDocument para processar o HTML
+            $data = self::HTMLXMLtoArray($fileContent);
+
+            foreach ($data as $acolhido) {
+                $res = new Acolhido;
+                $res->nome = $acolhido[1];
+                $data_cadastro = Carbon::createFromFormat('d/m/Y', $acolhido[0])->format('Y-m-d');
+                $res->data_cadastro = $data_cadastro;
+                $res->unidade = $acolhido[2];
+                $res->save();
+            }
+
+            return redirect()->route('upload.form')->with('success', count($data) . ' registros importados com sucesso!');
+
+        } catch (Exception $e) {
+
+            return redirect()->route('upload.form')->with('error', 'Erro ao importar o arquivo: ' . $e->getMessage());
+        }
+    }
+
+    private function HTMLXMLtoArray($fileContent)
+    {
+        try {
             $dom = new DOMDocument;
-            @$dom->loadHTML($htmlContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            @$dom->loadHTML($fileContent, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-            // Processar o conteúdo HTML, por exemplo, extrair tabelas
             $tables = $dom->getElementsByTagName('table');
             $data = [];
 
@@ -61,13 +72,10 @@ class ExcelController extends Controller
                 }
             }
 
-            // Exemplo: Exibir o array
-            dd($data);
+            return $data;
 
-            return redirect()->route('upload.form')->with('success', 'Arquivo importado com sucesso!');
         } catch (Exception $e) {
-            // Redirecionar com mensagem de erro
-            return redirect()->route('upload.form')->with('error', 'Erro ao importar o arquivo: ' . $e->getMessage());
+            return redirect()->route('upload.form')->with('error', 'Erro ao converter o arquivo: ' . $e->getMessage());
         }
     }
 }

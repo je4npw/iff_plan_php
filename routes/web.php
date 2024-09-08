@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 //login
 Route::get('/', function () {
@@ -35,8 +35,11 @@ Route::get('/home', function () {
     ->middleware('auth');
 
 //users
-Route::resource('users', UserController::class);
+Route::resource('users', UserController::class)
+    ->middleware('auth');
 
 //excel
-Route::get('/upload', [ExcelController::class, 'showForm'])->name('upload.form');
+Route::get('/upload', [ExcelController::class, 'showForm'])
+    ->name('upload.form')
+    ->middleware('auth');
 Route::post('/upload', [ExcelController::class, 'upload'])->name('upload');
