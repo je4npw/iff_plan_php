@@ -1,7 +1,8 @@
 <?php
 
+use App\Http\Controllers\AcolhidoController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,17 +30,19 @@ Route::post('logout', [AuthController::class, 'logout'])
     ->middleware('auth');
 
 //Home
-Route::get('/home', function () {
-    return view('home');
-})->name('home')
+Route::get('/home', [DashboardController::class, 'index'])->name('home')
     ->middleware('auth');
 
 //users
 Route::resource('users', UserController::class)
     ->middleware('auth');
 
-//excel
-Route::get('/upload', [ExcelController::class, 'showForm'])
+//csv import
+Route::get('/upload', [AcolhidoController::class, 'showForm'])
     ->name('upload.form')
     ->middleware('auth');
-Route::post('/upload', [ExcelController::class, 'upload'])->name('upload');
+Route::post('/acolhidos/import', [AcolhidoController::class, 'import'])
+    ->name('acolhidos.import');
+
+//acolhidos
+Route::resource('acolhidos', AcolhidoController::class);

@@ -6,10 +6,12 @@
 
         <div class="grid grid-cols-3 gap-6">
             <!-- Card 1 -->
-            <div class="bg-white shadow-lg rounded-lg p-6">
-                <h2 class="text-xl font-bold mb-4">Usuários Ativos</h2>
-                <p class="text-gray-600 text-lg">1,234</p>
-            </div>
+            <a href="{{route('acolhidos.index')}}">
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h2 class="text-xl font-bold mb-4">Acolhidos Ativos</h2>
+                    <p class="text-gray-600 text-lg">{{ $activeUsersCount }}</p>
+                </div>
+            </a>
 
             <!-- Card 2 -->
             <div class="bg-white shadow-lg rounded-lg p-6">
