@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Morador;
+use App\Models\Unidade;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Class MoradorController
@@ -21,39 +23,47 @@ class MoradorController extends Controller
 
     public function create()
     {
-        return view('moradores.create');
+        $unidades = Unidade::all();
+        return view('moradores.create', compact('unidades'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'data_cadastro' => 'required|date_format:d/m/Y',
-            'unidade' => 'required|string|max:255',
-            'sexo' => 'required|string|max:10',
-            'cpf' => 'required|string|max:14|unique:moradores',
-            'rg' => 'nullable|string|max:20',
-            'nis' => 'nullable|string|max:20',
-            'cns' => 'nullable|string|max:20',
-            'data_nascimento' => 'nullable|date_format:d/m/Y',
-            'profissao' => 'nullable|string|max:255',
-            'morador_de_rua' => 'required|boolean',
-            'tipo_de_vaga' => 'required|in:social,particular,convenio',
-            'origem_da_busca' => 'nullable|string|max:255',
-            'convenio' => 'nullable|string|max:255',
-            'status' => 'required|in:ativo,inativo,triagem',
-            'cidade' => 'nullable|string|max:255',
-            'nome_mae' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validated = $request->validate([
+                'nome' => 'required|string|max:255',
+                'data_cadastro' => 'required|date_format:d/m/Y',
+                'unidade' => 'required|string|max:255',
+                'sexo' => 'required|string|max:10',
+                'cpf' => 'required|string|max:14|unique:moradores',
+                'rg' => 'nullable|string|max:20',
+                'nis' => 'nullable|string|max:20',
+                'cns' => 'nullable|string|max:20',
+                'data_nascimento' => 'nullable|date_format:d/m/Y',
+                'profissao' => 'nullable|string|max:255',
+                'morador_de_rua' => 'required|boolean',
+                'tipo_de_vaga' => 'required|in:social,particular,convenio',
+                'origem_da_busca' => 'nullable|string|max:255',
+                'convenio' => 'nullable|string|max:255',
+                'status' => 'required|in:ativo,inativo,triagem',
+                'cidade' => 'nullable|string|max:255',
+                'nome_mae' => 'nullable|string|max:255',
+            ]);
 
-        $validated['data_cadastro'] = Carbon::createFromFormat('d/m/Y', $validated['data_cadastro']);
-        $validated['data_nascimento'] = $validated['data_nascimento']
-            ? Carbon::createFromFormat('d/m/Y', $validated['data_nascimento'])
-            : null;
+            // Formatação das datas
+            $validated['data_cadastro'] = Carbon::createFromFormat('d/m/Y', $validated['data_cadastro']);
+            $validated['data_nascimento'] = $validated['data_nascimento']
+                ? Carbon::createFromFormat('d/m/Y', $validated['data_nascimento'])
+                : null;
 
-        Morador::create($validated);
+            Morador::create($validated);
 
-        return redirect()->route('moradores.index')->with('success', 'Morador criado com sucesso!');
+            return redirect()->route('moradores.index')->with('success', 'Morador criado com sucesso!');
+
+        } catch (ValidationException $e) {
+            // Exibir os erros de validação
+            dd($e->validator->errors());
+        }
     }
 
     public function show(Morador $morador)
@@ -63,6 +73,7 @@ class MoradorController extends Controller
 
     public function edit(Morador $morador)
     {
+        $unidades = Unidade::all();
         return view('moradores.edit', compact('morador'));
     }
 

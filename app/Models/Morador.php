@@ -28,5 +28,18 @@ class Morador extends Model
         'status',
         'cidade',
         'nome_mae',
+        'unidade_id',
     ];
+
+    public function unidade()
+    {
+        return $this->belongsTo(Unidade::class);
+    }
+
+    public function medicamentos()
+    {
+        return $this->belongsToMany(Medicamento::class, 'moradores_medicamentos')
+            ->withPivot(['quantidade', 'data_entrada', 'data_renovacao', 'horario'])
+            ->withTimestamps();
+    }
 }

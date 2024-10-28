@@ -15,8 +15,10 @@ class Medicamento extends Model
         'descricao',
     ];
 
-    public function moradoresMedicamentos()
+    public function moradores()
     {
-        return $this->hasMany(MoradorMedicamento::class);
+        return $this->belongsToMany(Morador::class, 'moradores_medicamentos')
+            ->withPivot(['quantidade', 'data_entrada', 'data_renovacao', 'horario'])
+            ->withTimestamps();
     }
 }

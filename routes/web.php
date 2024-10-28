@@ -48,6 +48,7 @@ Route::post('/moradores/import', [MoradorController::class, 'import'])
 
 //moradores
 Route::resource('moradores', MoradorController::class);
+Route::get('/moradores', [MoradorController::class, 'index'])->name('moradores.index');
 
 //unidades
 Route::resource('unidades', UnidadeController::class);
