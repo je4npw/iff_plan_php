@@ -6,9 +6,9 @@
 
         <div class="grid grid-cols-3 gap-6">
             <!-- Card 1 -->
-            <a href="{{route('acolhidos.index')}}">
+            <a href="{{route('moradores.index')}}">
                 <div class="bg-white shadow-lg rounded-lg p-6">
-                    <h2 class="text-xl font-bold mb-4">Acolhidos Ativos</h2>
+                    <h2 class="text-xl font-bold mb-4">Moradores Ativos</h2>
                     <p class="text-gray-600 text-lg">{{ $activeUsersCount }}</p>
                 </div>
             </a>

@@ -2,26 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Acolhido;
+use App\Models\Morador;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Class AcolhidoController
- * Controller responsável por lidar com a importação de dados de acolhidos a partir de um arquivo CSV.
+ * Class MoradorController
+ * Controller responsável por lidar com a importação de dados de moradores a partir de um arquivo CSV.
  */
-class AcolhidoController extends Controller
+class MoradorController extends Controller
 {
     public function index()
     {
-        $acolhidos = Acolhido::all();
-        return view('acolhidos.index', compact('acolhidos'));
+        $moradores = Morador::all();
+        return view('moradores.index', compact('moradores'));
     }
 
     public function create()
     {
-        return view('acolhidos.create');
+        return view('moradores.create');
     }
 
     public function store(Request $request)
@@ -31,7 +31,7 @@ class AcolhidoController extends Controller
             'data_cadastro' => 'required|date_format:d/m/Y',
             'unidade' => 'required|string|max:255',
             'sexo' => 'required|string|max:10',
-            'cpf' => 'required|string|max:14|unique:acolhidos',
+            'cpf' => 'required|string|max:14|unique:moradores',
             'rg' => 'nullable|string|max:20',
             'nis' => 'nullable|string|max:20',
             'cns' => 'nullable|string|max:20',
@@ -51,22 +51,22 @@ class AcolhidoController extends Controller
             ? Carbon::createFromFormat('d/m/Y', $validated['data_nascimento'])
             : null;
 
-        Acolhido::create($validated);
+        Morador::create($validated);
 
-        return redirect()->route('acolhidos.index')->with('success', 'Acolhido criado com sucesso!');
+        return redirect()->route('moradores.index')->with('success', 'Morador criado com sucesso!');
     }
 
-    public function show(Acolhido $acolhido)
+    public function show(Morador $morador)
     {
-        return view('acolhidos.show', compact('acolhido'));
+        return view('moradores.show', compact('morador'));
     }
 
-    public function edit(Acolhido $acolhido)
+    public function edit(Morador $morador)
     {
-        return view('acolhidos.edit', compact('acolhido'));
+        return view('moradores.edit', compact('morador'));
     }
 
-    public function update(Request $request, Acolhido $acolhido)
+    public function update(Request $request, Morador $morador)
     {
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
@@ -93,16 +93,16 @@ class AcolhidoController extends Controller
             ? Carbon::createFromFormat('d/m/Y', $validated['data_nascimento'])
             : null;
 
-        $acolhido->update($validated);
+        $morador->update($validated);
 
-        return redirect()->route('acolhidos.index')->with('success', 'Acolhido atualizado com sucesso!');
+        return redirect()->route('moradores.index')->with('success', 'Morador atualizado com sucesso!');
     }
 
-    public function destroy(Acolhido $acolhido)
+    public function destroy(Morador $morador)
     {
-        $acolhido->delete();
+        $morador->delete();
 
-        return redirect()->route('acolhidos.index')->with('success', 'Acolhido excluído com sucesso!');
+        return redirect()->route('moradores.index')->with('success', 'Morador excluído com sucesso!');
     }
 
     /**
@@ -159,7 +159,7 @@ class AcolhidoController extends Controller
      * Salva os dados importados do CSV
      *
      * @param array $data
-     * @return an
+     * @return int
      */
     private function saveImportedData(array $data): int
     {
@@ -170,7 +170,7 @@ class AcolhidoController extends Controller
             \Log::info("Processando registro {$index}");
 
             try {
-                $acolhido = Acolhido::firstOrNew(['cpf' => $row[3]]);
+                $acolhido = Morador::firstOrNew(['cpf' => $row[3]]);
 
                 $acolhido->fill([
                     'nome' => $row[1],

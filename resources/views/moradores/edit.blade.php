@@ -24,7 +24,7 @@
 
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <h1 class="text-3xl font-bold mb-5">Editar Acolhido</h1>
-                        <form action="{{ route('acolhidos.update', $acolhido->id) }}" method="POST" class="space-y-4">
+                        <form action="{{ route('moradores.update', $acolhido->id) }}" method="POST" class="space-y-4">
                             @csrf
                             @method('PUT')
                             <div class="mb-4">
@@ -61,7 +61,7 @@
                                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                                     Salvar
                                 </button>
-                                <a href="{{ route('acolhidos.index') }}"
+                                <a href="{{ route('moradores.index') }}"
                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                                     Cancelar
                                 </a>

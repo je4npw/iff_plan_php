@@ -2,8 +2,8 @@
 
 @section('content')
     <div class="container mx-auto mt-5">
-        <h1 class="text-3xl font-bold mb-5">Acolhidos</h1>
-        <a href="{{ route('acolhidos.create') }}"
+        <h1 class="text-3xl font-bold mb-5">Moradores</h1>
+        <a href="{{ route('moradores.create') }}"
            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-5 inline-block">Adicionar
             Novo</a>
         <div class="bg-white shadow-md rounded overflow-hidden">
@@ -17,13 +17,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($acolhidos as $index => $acolhido)
+                @foreach($moradores as $index => $morador)
                     <tr class="{{ $loop->iteration % 2 == 0 ? 'bg-gray-100' : 'bg-gray-200' }}">
-                        <td class="border px-4 py-2">{{ $acolhido->nome }}</td>
-                        <td class="border px-4 py-2">{{ $acolhido->cpf }}</td>
-                        <td class="border px-4 py-2">{{ $acolhido->data_cadastro }}</td>
+                        <td class="border px-4 py-2">{{ $morador->nome }}</td>
+                        <td class="border px-4 py-2">{{ $morador->cpf }}</td>
+                        <td class="border px-4 py-2">{{ $morador->data_cadastro }}</td>
                         <td class="border px-4 py-2 flex flex-row gap-2">
-                            <a href="{{ route('acolhidos.show', ['acolhido' => $acolhido->id, 'modal' => 'true']) }}"
+                            <a href="{{ route('moradores.show', ['moradores' => $morador->id, 'modal' => 'true']) }}"
                                class="bg-blue-500 hover:bg-blue-700 text-white  py-1 px-2 rounded">
                                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none"
                                      viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"
@@ -34,7 +34,7 @@
                                           d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
                                 </svg>
                             </a>
-                            <a href="{{ route('acolhidos.edit', ['acolhido' => $acolhido->id, 'modal' => 'edit']) }}"
+                            <a href="{{ route('moradores.edit', ['morador' => $morador->id, 'modal' => 'edit']) }}"
                                class="bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
                                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none"
                                      viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"
@@ -43,7 +43,7 @@
                                           d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"></path>
                                 </svg>
                             </a>
-                            <form action="{{ route('acolhidos.destroy', $acolhido->id) }}" method="POST"
+                            <form action="{{ route('moradores.destroy', $morador->id) }}" method="POST"
                                   class="inline-block">
                                 @csrf
                                 @method('DELETE')

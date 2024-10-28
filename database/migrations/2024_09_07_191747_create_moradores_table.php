@@ -10,12 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('acolhidos', function (Blueprint $table) {
+        Schema::create('moradores', function (Blueprint $table) {
             $table->id();
             $table->date('data_cadastro')->nullable();
             $table->string('nome');
-            $table->string('unidade')->nullable();
-            $table->string('sexo', 10)->nullable();
+            $table->enum('sexo', ['Masculino', 'Feminino', 'Outro'])->default('Outro');
             $table->string('cpf', 14)->unique();
             $table->string('rg', 20)->nullable();
             $table->string('nis', 20)->nullable();
@@ -40,6 +39,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('acolhidos');
+        Schema::dropIfExists('moradores');
     }
 };

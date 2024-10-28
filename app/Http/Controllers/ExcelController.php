@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Acolhido;
+use App\Models\Morador;
 use Carbon\Carbon;
 use DOMDocument;
 use Exception;
@@ -30,7 +30,7 @@ class ExcelController extends Controller
             $data = self::HTMLXMLtoArray($fileContent);
 
             foreach ($data as $acolhido) {
-                $res = new Acolhido;
+                $res = new Morador;
                 $res->nome = $acolhido[1];
                 $data_cadastro = Carbon::createFromFormat('d/m/Y', $acolhido[0])->format('Y-m-d');
                 $res->data_cadastro = $data_cadastro;

@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Acolhido extends Model
+class Morador extends Model
 {
     use HasFactory;
 
+    protected $table = 'moradores';
     protected $fillable = [
         'data_cadastro',
         'nome',

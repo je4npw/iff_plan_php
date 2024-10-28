@@ -20,7 +20,7 @@
             @endif
 
             <!-- Formulário de Upload -->
-            <form action="{{ route('acolhidos.import') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('moradores.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-4">
                     <label for="file" class="block text-sm font-medium text-gray-700 py-4">Selecione apenas um arquivo

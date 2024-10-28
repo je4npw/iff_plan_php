@@ -7,11 +7,14 @@
                     <li class="hover:text-amber-500">
                         <a class="text-xl" href="{{route('users.index')}}">Usuários</a>
                     </li>
+{{--                    <li class="hover:text-amber-500">--}}
+{{--                        <a class="text-xl" href="{{route('upload.form')}}">Upload</a>--}}
+{{--                    </li>--}}
                     <li class="hover:text-amber-500">
-                        <a class="text-xl" href="{{route('upload.form')}}">Upload</a>
+                        <a class="text-xl" href="{{route('moradores.index')}}">Moradores</a>
                     </li>
                     <li class="hover:text-amber-500">
-                        <a class="text-xl" href="{{route('acolhidos.index')}}">Acolhidos</a>
+                        <a class="text-xl" href="{{route('unidades.index')}}">Unidades</a>
                     </li>
                 @endauth
             </ul>
