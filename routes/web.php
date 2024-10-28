@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\MedicamentoController;
+use App\Http\Controllers\MoradorController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,17 +32,25 @@ Route::post('logout', [AuthController::class, 'logout'])
     ->middleware('auth');
 
 //Home
-Route::get('/home', function () {
-    return view('home');
-})->name('home')
+Route::get('/home', [DashboardController::class, 'index'])->name('home')
     ->middleware('auth');
 
 //users
 Route::resource('users', UserController::class)
     ->middleware('auth');
 
-//excel
-Route::get('/upload', [ExcelController::class, 'showForm'])
+//csv import
+Route::get('/upload', [MoradorController::class, 'showForm'])
     ->name('upload.form')
     ->middleware('auth');
-Route::post('/upload', [ExcelController::class, 'upload'])->name('upload');
+Route::post('/moradores/import', [MoradorController::class, 'import'])
+    ->name('moradores.import');
+
+//moradores
+Route::resource('moradores', MoradorController::class);
+
+//unidades
+Route::resource('unidades', UnidadeController::class);
+
+//medicamentos
+Route::resource('medicamentos', MedicamentoController::class);

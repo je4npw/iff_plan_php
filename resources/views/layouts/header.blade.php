@@ -3,13 +3,20 @@
         <div class="flex flex-row gap-5">
             <a href="{{route('home')}}" class="text-xl font-bold">IFF Plan |></a>
             <ul class="flex flex-row gap-2">
-                <li>
-                    <a class="text-xl" href="{{route('users.index')}}">Usuários</a>
-                </li>
-                <li>
-                    <a class="text-xl" href="{{route('upload')}}">Upload</a>
-
-                </li>
+                @auth()
+                    <li class="hover:text-amber-500">
+                        <a class="text-xl" href="{{route('users.index')}}">Usuários</a>
+                    </li>
+{{--                    <li class="hover:text-amber-500">--}}
+{{--                        <a class="text-xl" href="{{route('upload.form')}}">Upload</a>--}}
+{{--                    </li>--}}
+                    <li class="hover:text-amber-500">
+                        <a class="text-xl" href="{{route('moradores.index')}}">Moradores</a>
+                    </li>
+                    <li class="hover:text-amber-500">
+                        <a class="text-xl" href="{{route('unidades.index')}}">Unidades</a>
+                    </li>
+                @endauth
             </ul>
         </div>
         <ul class="flex space-x-4">
