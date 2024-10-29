@@ -1,152 +1,137 @@
 @extends('layouts.app')
 
 @section('content')
+    <script>
+        const uploadUrl = "{{ route('moradores.uploadImagem') }}";
+        const csrfToken = "{{ csrf_token() }}";
+
+        window.imageCropper = function () {
+            return {
+                open: false,
+                imageUrl: '',
+                cropper: null,
+
+                handleImageUpload(event) {
+                    const files = event.target.files;
+                    const done = (url) => {
+                        this.imageUrl = url; // Armazena a URL da imagem
+                    };
+
+                    if (files && files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            done(reader.result);
+                            this.open = true; // Abre o modal
+                            this.$nextTick(() => {
+                                // Atribui a imagem ao <img> no modal
+                                const imageElement = document.getElementById('image-to-crop');
+                                imageElement.src = this.imageUrl;
+
+                                // Cria uma nova instância do Cropper
+                                if (this.cropper) {
+                                    this.cropper.destroy(); // Destrói a instância anterior, se existir
+                                }
+                                this.cropper = new Cropper(imageElement, {
+                                    aspectRatio: 1, // Mantém a proporção
+                                    viewMode: 1,
+                                });
+                            });
+                        };
+                        reader.readAsDataURL(files[0]);
+                    }
+                },
+
+                cropImage() {
+                    if (this.cropper) {
+                        const canvas = this.cropper.getCroppedCanvas({
+                            width: 300,
+                            height: 300,
+                        });
+
+                        canvas.toBlob((blob) => {
+                            const formData = new FormData();
+                            formData.append('imagem', blob, 'cropped-image.png'); // Define um nome para a imagem
+
+                            fetch(uploadUrl, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': csrfToken,
+                                },
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        // Atualizar a imagem pré-visualizada
+                                        const previewElement = document.getElementById('image-upload-preview');
+                                        if (previewElement) {
+                                            previewElement.innerHTML = '<img src="' + data.imageUrl + '" class="w-32 h-32 rounded-full">';
+                                            document.getElementById('imagem_temp').value = data.imageUrl; // Atualizar o campo oculto
+                                        }
+                                    } else {
+                                        console.error(data.message); // Log de erro, se necessário
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Erro ao enviar a imagem:', error);
+                                });
+
+                            this.open = false; // Fecha o modal
+                        });
+                    }
+                },
+            };
+        };
+    </script>
+
     <div class="container mx-auto mt-5">
-        <div class="bg-white shadow-md rounded p-6">
+        <div class="bg-white shadow-md rounded p-6" x-data="imageCropper()">
             <h1 class="text-3xl font-bold mb-5">Cadastrar Morador</h1>
-            <form action="{{ route('moradores.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('moradores.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <!-- Campos já existentes -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
-                        <input type="text" name="nome" value="{{ old('nome') }}" required
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Data de Cadastro:</label>
-                            <input type="date" name="data_cadastro"   value="{{ old('data_cadastro', now()->format('Y-m-d')) }}" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                    <div id="image-upload" class="col-span-1">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Alterar Imagem:</label>
+                        <input type="file" name="imagem" id="imagem-input"
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               @change="handleImageUpload($event)">
+
+                        <!-- Elemento para mostrar a imagem cropped -->
+                        <div id="image-upload-preview" class="mt-4">
+                            @if(session('imagem_temp'))
+                                <img src="{{ asset('storage/' . session('imagem_temp')) }}" alt="Imagem do Morador Temporária"
+                                     class="w-32 h-32 rounded-full">
+                            @endif
                         </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento:</label>
-                            <input type="date" name="data_nascimento" value="{{ old('data_nascimento') }}" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Status:</label>
-                            <select name="status" required
-                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                <option value="" disabled selected>Selecione</option>
-                                <option value="ativo" {{ old('status') == 'ativo' ? 'selected' : '' }}>Ativo</option>
-                                <option value="inativo" {{ old('status') == 'inativo' ? 'selected' : '' }}>Inativo</option>
-                                <option value="triagem" {{ old('status') == 'triagem' ? 'selected' : '' }}>Triagem</option>
-                            </select>
+
+                        <!-- Modal para Crop -->
+                        <div x-show="open"
+                             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+                             style="display: none;">
+                            <div class="bg-white rounded-lg p-6 max-w-lg w-full overflow-hidden">
+                                <h5 class="text-lg font-bold mb-2">Cortar Imagem</h5>
+                                <img id="image-to-crop" style="max-width: 100%; max-height: 400px;">
+                                <div class="mt-4">
+                                    <button type="button" @click="cropImage"
+                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                        Cortar Imagem
+                                    </button>
+                                    <button type="button" @click="open = false; if (cropper) cropper.destroy();"
+                                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                        Fechar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nome da Mãe:</label>
-                        <input type="text" name="nome_mae" value="{{ old('nome_mae') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Sexo:</label>
-                            <select name="sexo" required
-                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                <option value="" disabled selected>Selecione</option>
-                                <option value="Masculino" {{ old('sexo') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
-                                <option value="Feminino" {{ old('sexo') == 'Feminino' ? 'selected' : '' }}>Feminino</option>
-                                <option value="Outro" {{ old('sexo') == 'Outro' ? 'selected' : '' }}>Outro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Morador de Rua:</label>
-                            <select name="morador_de_rua" required
-                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                <option value="0" {{ old('morador_de_rua') == '0' ? 'selected' : '' }}>Não</option>
-                                <option value="1" {{ old('morador_de_rua') == '1' ? 'selected' : '' }}>Sim</option>
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-gray-700">Unidade:</label>
-                            <select name="unidade" required class="w-full border rounded px-3 py-2">
-                                @foreach($unidades as $unidade)
-                                    <option value="{{ $unidade->id }}">{{ $unidade->nome }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Profissão:</label>
-                        <input type="text" name="profissao" value="{{ old('profissao') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div class="grid grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">CPF:</label>
-                            <input type="text" name="cpf" value="{{ old('cpf') }}" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">RG:</label>
-                            <input type="text" name="rg" value="{{ old('rg') }}" required
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">NIS:</label>
-                            <input type="text" name="nis" value="{{ old('nis') }}"
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">CNS:</label>
-                            <input type="text" name="cns" value="{{ old('cns') }}"
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Origem da Busca:</label>
-                        <input type="text" name="origem_da_busca" value="{{ old('origem_da_busca') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Convênio:</label>
-                            <input type="text" name="convenio" value="{{ old('convenio') }}"
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Tipo de Vaga:</label>
-                            <select name="tipo_de_vaga" required
-                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                <option value="" disabled selected>Selecione</option>
-                                <option value="social" {{ old('tipo_de_vaga') == 'social' ? 'selected' : '' }}>Social</option>
-                                <option value="particular" {{ old('tipo_de_vaga') == 'particular' ? 'selected' : '' }}>Particular</option>
-                                <option value="convenio" {{ old('tipo_de_vaga') == 'convenio' ? 'selected' : '' }}>Convênio</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Endereço:</label>
-                        <input type="text" name="endereco" value="{{ old('endereco') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Cidade:</label>
-                        <input type="text" name="cidade" value="{{ old('cidade') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Cidade:</label>
-                        <input type="text" name="cidade" value="{{ old('cidade') }}"
-                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    </div>
-
+                    <input type="hidden" name="imagem_temp" id="imagem_temp" value="{{ session('imagem_temp') ?? '' }}"
+                           class="col-span-4">
                 </div>
-                <!-- Botões de ação -->
-                <div class="flex space-x-4">
-                    <button type="submit"
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Salvar
-                    </button>
-                    <a href="{{ route('moradores.index') }}"
-                       class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Cancelar
-                    </a>
-                </div>
+                @include('moradores.form', ['unidades' => $unidades])
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Cadastrar Morador
+                </button>
             </form>
         </div>
     </div>

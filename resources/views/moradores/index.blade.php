@@ -23,8 +23,8 @@
                         <td class="border px-4 py-2">{{ $morador->cpf }}</td>
                         <td class="border px-4 py-2">{{ $morador->data_cadastro }}</td>
                         <td class="border px-4 py-2 flex flex-row gap-2">
-                            <a href="{{ route('moradores.show', ['moradores' => $morador->id, 'modal' => 'true']) }}"
-                               class="bg-blue-500 hover:bg-blue-700 text-white  py-1 px-2 rounded">
+                            <a href="{{ route('moradores.show', ['morador' => $morador, 'modal' => 'true']) }}"
+                            class="bg-blue-500 hover:bg-blue-700 text-white  py-1 px-2 rounded">
                                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none"
                                      viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"
                                      data-slot="icon">
@@ -34,8 +34,8 @@
                                           d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
                                 </svg>
                             </a>
-                            <a href="{{ route('moradores.edit', ['morador' => $morador->id, 'modal' => 'edit']) }}"
-                               class="bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                            <a href="{{ route('moradores.edit', ['morador' => $morador]) }}"
+                            class="bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
                                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none"
                                      viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"
                                      data-slot="icon">

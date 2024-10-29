@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Intervention\Image\Image;
+use Intervention\Image\ImageManager;
 
 /**
  * Class MoradorController
@@ -29,17 +31,72 @@ class MoradorController extends Controller
 
     public function store(Request $request)
     {
+
+        // Validação da requisição
+        $validatedData = $request->validate([
+            'imagem_temp' => 'required|url',
+            'nome' => 'required|string|max:255',
+            'data_cadastro' => 'required|date',
+            'data_nascimento' => 'required|date',
+            'status' => 'required|string|max:50',
+            'nome_mae' => 'required|string|max:255',
+            'sexo' => 'required|string|max:10',
+            'morador_de_rua' => 'required|boolean',
+            'unidade_id' => 'required|exists:unidades,id',
+            'profissao' => 'required|string|max:100',
+            'cpf' => 'required|string|max:14',
+            'rg' => 'required|string|max:20',
+            'nis' => 'required|string|max:20',
+            'cns' => 'nullable|string|max:20',
+            'origem_da_busca' => 'required|string|max:100',
+            'convenio' => 'required|string|max:100',
+            'tipo_de_vaga' => 'required|string|max:50',
+        ]);
+
+        // Remove o domínio da URL da imagem
+        $url = parse_url($request->imagem_temp);
+        $caminhoImagem = $url['path']; // Obtém apenas o caminho
+
+        // Armazene o morador com a URL da imagem temporária
+        Morador::create(array_merge($validatedData, [
+            'imagem' => $caminhoImagem, // Adiciona a URL da imagem temporária
+        ]));
+
+        // Redireciona ou retorna uma resposta
+        return redirect()->route('moradores.index')->with('success', 'Morador cadastrado com sucesso!');
+    }
+
+    public function show($id)
+    {
+        $morador = Morador::find($id);
+
+        if (!$morador) {
+            return redirect()->route('moradores.index')->with('error', 'Morador não encontrado.');
+        }
+
+        return view('moradores.show', compact('morador'));
+    }
+
+    public function edit(Morador $morador)
+    {
+        $unidades = Unidade::all(); // caso precise passar as unidades para a view
+
+        return view('moradores.edit', compact('morador', 'unidades'));
+    }
+
+    public function update(Request $request, Morador $morador)
+    {
         try {
             $validated = $request->validate([
                 'nome' => 'required|string|max:255',
-                'data_cadastro' => 'required|date_format:d/m/Y',
-                'unidade' => 'required|string|max:255',
+                'data_cadastro' => 'required|date_format:Y-m-d',
+                'unidade_id' => 'required|exists:unidades,id',
                 'sexo' => 'required|string|max:10',
-                'cpf' => 'required|string|max:14|unique:moradores',
+                'cpf' => 'required|string|max:14|unique:moradores,cpf,' . $morador->id,
                 'rg' => 'nullable|string|max:20',
                 'nis' => 'nullable|string|max:20',
                 'cns' => 'nullable|string|max:20',
-                'data_nascimento' => 'nullable|date_format:d/m/Y',
+                'data_nascimento' => 'nullable|date_format:Y-m-d',
                 'profissao' => 'nullable|string|max:255',
                 'morador_de_rua' => 'required|boolean',
                 'tipo_de_vaga' => 'required|in:social,particular,convenio',
@@ -48,65 +105,38 @@ class MoradorController extends Controller
                 'status' => 'required|in:ativo,inativo,triagem',
                 'cidade' => 'nullable|string|max:255',
                 'nome_mae' => 'nullable|string|max:255',
+                'imagem' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ]);
 
-            // Formatação das datas
-            $validated['data_cadastro'] = Carbon::createFromFormat('d/m/Y', $validated['data_cadastro']);
-            $validated['data_nascimento'] = $validated['data_nascimento']
-                ? Carbon::createFromFormat('d/m/Y', $validated['data_nascimento'])
-                : null;
+            // Verifica se uma nova imagem foi enviada
+            if ($request->hasFile('imagem')) {
+                // Remove a imagem antiga se existir
+                if ($morador->imagem) {
+                    Storage::delete('public/' . $morador->imagem);
+                }
 
-            Morador::create($validated);
+                $image = $request->file('imagem');
+                $imagePath = 'moradores/' . uniqid() . '.' . $image->getClientOriginalExtension();
 
-            return redirect()->route('moradores.index')->with('success', 'Morador criado com sucesso!');
+                // Manipulação da imagem com Intervention
+                $img = Image::make($image->getRealPath())
+                    ->fit(300, 300, function ($constraint) {
+                        $constraint->upsize(); // Garante que a imagem não seja ampliada além do tamanho original
+                    })
+                    ->save(storage_path('app/public/' . $imagePath)); // Salva a imagem recortada
+
+                $validated['imagem'] = $imagePath; // Salva o caminho da nova imagem no banco de dados
+            }
+
+            // Atualiza o morador
+            $morador->update($validated);
+
+            return redirect()->route('moradores.index')->with('success', 'Morador atualizado com sucesso!');
 
         } catch (ValidationException $e) {
-            // Exibir os erros de validação
+            // Exibe os erros de validação
             dd($e->validator->errors());
         }
-    }
-
-    public function show(Morador $morador)
-    {
-        return view('moradores.show', compact('morador'));
-    }
-
-    public function edit(Morador $morador)
-    {
-        $unidades = Unidade::all();
-        return view('moradores.edit', compact('morador'));
-    }
-
-    public function update(Request $request, Morador $morador)
-    {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'data_cadastro' => 'required|date_format:d/m/Y',
-            'unidade' => 'required|string|max:255',
-            'sexo' => 'required|string|max:10',
-            'cpf' => 'required|string|max:14',
-            'rg' => 'nullable|string|max:20',
-            'nis' => 'nullable|string|max:20',
-            'cns' => 'nullable|string|max:20',
-            'data_nascimento' => 'nullable|date_format:d/m/Y',
-            'profissao' => 'nullable|string|max:255',
-            'morador_de_rua' => 'required|boolean',
-            'tipo_de_vaga' => 'required|in:social,particular,convenio',
-            'origem_da_busca' => 'nullable|string|max:255',
-            'convenio' => 'nullable|string|max:255',
-            'status' => 'required|in:ativo,inativo,triagem',
-            'cidade' => 'nullable|string|max:255',
-            'nome_mae' => 'nullable|string|max:255',
-        ]);
-
-        $validated['data_cadastro'] = Carbon::createFromFormat('d/m/Y', $validated['data_cadastro']);
-        $validated['data_nascimento'] = $validated['data_nascimento']
-            ? Carbon::createFromFormat('d/m/Y', $validated['data_nascimento'])
-            : null;
-
-        $morador->update($validated);
-
-        return redirect()->route('moradores.index')->with('success', 'Morador atualizado com sucesso!');
     }
 
     public function destroy(Morador $morador)
@@ -250,5 +280,25 @@ class MoradorController extends Controller
         }, $row, array_keys($row));
     }
 
+    public function uploadImagem(Request $request)
+    {
+        $request->validate([
+            'imagem' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        try {
+            $imagePath = $request->file('imagem')->store('imagens_moradores', 'public');
+
+            return response()->json([
+                'success' => true,
+                'imageUrl' => asset('storage/' . $imagePath),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao fazer upload da imagem: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 
 }

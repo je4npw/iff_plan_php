@@ -29,6 +29,7 @@ class Morador extends Model
         'cidade',
         'nome_mae',
         'unidade_id',
+        'imagem',
     ];
 
     public function unidade()

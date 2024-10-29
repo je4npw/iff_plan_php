@@ -27,10 +27,6 @@
                     </button>
                 </div>
             </form>
-
-            <div class="mt-6 text-center">
-                <p class="text-gray-600">Não tem uma conta? <a href="{{ url('register') }}" class="text-blue-500 hover:text-blue-600">Registre-se</a></p>
-            </div>
         </div>
     </div>
 @endsection

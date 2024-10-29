@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\MedicamentoController;
-use App\Http\Controllers\MoradorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MedicamentoController;
+use App\Http\Controllers\MoradorController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -18,15 +18,6 @@ Route::get('login', function () {
 })->name('login');
 
 Route::post('login', [AuthController::class, 'login']);
-
-//register
-Route::get('register', function () {
-    return view('auth.register');
-})->name('register')
-    ->middleware('auth');
-
-Route::post('register', [AuthController::class, 'register']);
-
 //logout
 Route::post('logout', [AuthController::class, 'logout'])
     ->middleware('auth');
@@ -47,8 +38,16 @@ Route::post('/moradores/import', [MoradorController::class, 'import'])
     ->name('moradores.import');
 
 //moradores
-Route::resource('moradores', MoradorController::class);
+Route::resource('moradores', MoradorController::class)->parameters([
+    'moradores' => 'morador'
+]);
 Route::get('/moradores', [MoradorController::class, 'index'])->name('moradores.index');
+Route::get('/moradores/{morador}/edit', [MoradorController::class, 'edit'])->name('moradores.edit');
+Route::get('/moradores/{morador}', [MoradorController::class, 'show'])->name('moradores.show');
+
+// imagem morador
+Route::post('/moradores/upload-imagem', [MoradorController::class, 'uploadImagem'])
+    ->name('moradores.uploadImagem');
 
 //unidades
 Route::resource('unidades', UnidadeController::class);
