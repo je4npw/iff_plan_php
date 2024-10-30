@@ -15,37 +15,38 @@
             </div>
         @endif
 
-        <table class="table-auto w-full mt-6">
-            <thead>
+        <table class="min-w-full bg-white mt-6">
+            <thead class="bg-gray-800 text-white">
             <tr>
-                <th class="px-4 py-2">ID</th>
-                <th class="px-4 py-2">Nome</th>
-                <th class="px-4 py-2">Email</th>
-                @can('edit')
-                    <th class="px-4 py-2">Ações</th>
-                @endcan
+                <th class="w-1/4 px-4 py-2 text-left">ID</th>
+                <th class="w-1/4 px-4 py-2 text-left">Nome</th>
+                <th class="w-1/4 px-4 py-2 text-left">Email</th>
+                <th class="w-1/4 px-4 py-2 text-left">Grupo</th>
+                {{--                @can('edit')--}}
+                <th class="w-1/4 px-4 py-2 text-left">Ações</th>
+                {{--                @endcan--}}
             </tr>
             </thead>
             <tbody>
             @foreach($users as $user)
-                <tr>
+                <tr class="{{ $loop->iteration % 2 == 0 ? 'bg-gray-100' : 'bg-gray-200' }}">
                     <td class="border px-4 py-2">{{ $user->id }}</td>
                     <td class="border px-4 py-2">{{ $user->name }}</td>
                     <td class="border px-4 py-2">{{ $user->email }}</td>
-                    @can('edit')
-                        <td class="border px-4 py-2">
-                            {{-- Verifica se o usuário pode editar --}}
-                            <a href="{{ route('users.edit', $user->id) }}"
-                               class="bg-yellow-500 text-white px-4 py-2 rounded">Editar
-                            </a>
-                            <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                  class="inline-block">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Excluir</button>
-                            </form>
-                        </td>
-                    @endcan
+                    <td class="border px-4 py-2">{{ $user->group->name ?? 'Nenhum grupo' }}</td>
+                    {{--                @can('edit')--}}
+                    <td class="border px-4 py-2 flex flex-row gap-2">
+                        <a href="{{ route('users.edit', $user->id) }}"
+                           class="bg-yellow-500 text-white px-4 py-2 rounded">Editar
+                        </a>
+                        <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                              class="inline-block">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Excluir</button>
+                        </form>
+                    </td>
+                    {{--                    @endcan--}}
                 </tr>
             @endforeach
             </tbody>

@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -14,11 +13,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        if (Gate::allows('edit') || Gate::allows('view')) {
-            $users = User::all();
-            return view('users.index', compact('users'));
-        }
-        return view('layouts.unauthorized');
+        $users = User::all();
+        return view('users.index', compact('users'));
     }
 
     /**
@@ -26,10 +22,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        if (Gate::allows('edit')) {
-            return view('users.create');
-        }
-        return view('layouts.unauthorized');
+        $groups = Group::all();
+        return view('users.create', compact('groups'));
     }
 
     /**
@@ -37,37 +31,29 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Gate::allows('edit')) {
-            $request->validate([
-                'name' => 'required',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:6',
-            ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'nullable|string|min:8|confirmed',
+            'group_id' => 'required|exists:groups,id',
+        ]);
 
-            User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'group_id' => $validated['group_id'],
+        ]);
 
-            return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso.');
-        }
-        return view('layouts.unauthorized');
+        return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(User $user)
     {
-        // Verifica se o usuário NÃO está bloqueado
-        if (Gate::allows('edit') || Gate::allows('view')) {
-            $user = User::findOrFail($id); // Carrega o usuário pelo ID ou lança um erro 404
-            return view('users.show', compact('user')); // Exibe a view do perfil do usuário
-        }
-
-        // Se o usuário está bloqueado, renderiza a view de "não autorizado"
-        return view('layouts.unauthorized');
+        return view('users.show', compact('user'));
     }
 
     /**
@@ -75,11 +61,9 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        if (Gate::allows('edit')) {
-            $user = User::findOrFail($id);
-            return view('users.edit', compact('user'));
-        }
-        return view('layouts.unauthorized');
+        $user = User::findOrFail($id);
+        $groups = Group::all();
+        return view('users.edit', compact('user', 'groups'));
 
     }
 
@@ -88,26 +72,24 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if (Gate::allows('edit')) {
-            $request->validate([
-                'name' => 'required',
-                'email' => 'required|email|unique:users,email,' . $id,
-                'password' => 'nullable|min:6',
-            ]);
+        $user = User::findOrFail($id);
 
-            $user = User::findOrFail($id);
-            $user->name = $request->name;
-            $user->email = $request->email;
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'group_id' => 'required|exists:groups,id',
+        ]);
 
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
-            }
-
-            $user->save();
-
-            return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso.');
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if ($validated['password']) {
+            $user->password = bcrypt($validated['password']);
         }
-        return view('layouts.unauthorized');
+        $user->group_id = $validated['group_id'];
+        $user->save();
+
+        return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 
     /**
@@ -115,11 +97,8 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        if (Gate::allows('edit')) {
-            $user = User::findOrFail($id);
-            $user->delete();
-            return redirect()->route('users.index')->with('success', 'Usuário removido com sucesso.');
-        }
-        return view('layouts.unauthorized');
+        $user = User::findOrFail($id);
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'Usuário removido com sucesso.');
     }
 }

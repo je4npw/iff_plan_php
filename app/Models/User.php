@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -11,33 +10,17 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role', // Adicionar a permissão de admin
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -46,27 +29,9 @@ class User extends Authenticatable
         ];
     }
 
-    // Verifica se o usuário é admin
-    public function isAdmin(): bool
+    // Atualizando o relacionamento para refletir que o usuário pertence a um grupo
+    public function group(): BelongsTo
     {
-        return $this->role === 'admin';
-    }
-
-    // Verifica se o usuário tem permissão de edição
-    public function isEditor(): bool
-    {
-        return $this->role === 'edit';
-    }
-
-    // Verifica se o usuário tem permissão de visualização
-    public function isViewer(): bool
-    {
-        return $this->role === 'view';
-    }
-
-    // Verifica se o usuário não tem permissões
-    public function hasNoPermissions(): bool
-    {
-        return $this->role === 'none';
+        return $this->belongsTo(Group::class);
     }
 }

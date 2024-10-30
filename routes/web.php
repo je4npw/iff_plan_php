@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MedicamentoController;
 use App\Http\Controllers\MoradorController;
 use App\Http\Controllers\UnidadeController;
@@ -51,3 +52,6 @@ Route::resource('unidades', UnidadeController::class);
 
 //medicamentos
 Route::resource('medicamentos', MedicamentoController::class);
+
+// grupos
+Route::resource('groups', GroupController::class);

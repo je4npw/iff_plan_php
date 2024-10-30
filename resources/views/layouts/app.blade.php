@@ -15,6 +15,7 @@
 @include('layouts.header')
 <div class="container mx-auto">
     @yield('content')
+    @stack('scripts')
 </div>
 </body>
 </html>
