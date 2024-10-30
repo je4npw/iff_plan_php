@@ -31,39 +31,46 @@ class MoradorController extends Controller
 
     public function store(Request $request)
     {
+        try {
+            // Validação da requisição
+            $validatedData = $request->validate([
+                'imagem_temp' => 'nullable|url',
+                'nome' => 'required|string|max:255',
+                'data_cadastro' => 'required|date',
+                'data_nascimento' => 'required|date',
+                'status' => 'required|string|max:50',
+                'nome_mae' => 'nullable|string|max:255',
+                'sexo' => 'required|string|max:10',
+                'morador_de_rua' => 'required|boolean',
+                'unidade_id' => 'required|exists:unidades,id',
+                'profissao' => 'required|string|max:100',
+                'cpf' => 'required|string|max:14',
+                'rg' => 'nullable|string|max:20',
+                'nis' => 'nullable|string|max:20',
+                'cns' => 'nullable|string|max:20',
+                'origem_da_busca' => 'required|string|max:100',
+                'convenio' => 'required|string|max:100',
+                'tipo_de_vaga' => 'required|string|max:50',
+            ]);
 
-        // Validação da requisição
-        $validatedData = $request->validate([
-            'imagem_temp' => 'required|url',
-            'nome' => 'required|string|max:255',
-            'data_cadastro' => 'required|date',
-            'data_nascimento' => 'required|date',
-            'status' => 'required|string|max:50',
-            'nome_mae' => 'required|string|max:255',
-            'sexo' => 'required|string|max:10',
-            'morador_de_rua' => 'required|boolean',
-            'unidade_id' => 'required|exists:unidades,id',
-            'profissao' => 'required|string|max:100',
-            'cpf' => 'required|string|max:14',
-            'rg' => 'required|string|max:20',
-            'nis' => 'required|string|max:20',
-            'cns' => 'nullable|string|max:20',
-            'origem_da_busca' => 'required|string|max:100',
-            'convenio' => 'required|string|max:100',
-            'tipo_de_vaga' => 'required|string|max:50',
-        ]);
+            // Remove o domínio da URL da imagem
+            $url = parse_url($request->imagem_temp);
+            $caminhoImagem = $url['path']; // Obtém apenas o caminho
 
-        // Remove o domínio da URL da imagem
-        $url = parse_url($request->imagem_temp);
-        $caminhoImagem = $url['path']; // Obtém apenas o caminho
+            // Armazene o morador com a URL da imagem temporária
+            Morador::create(array_merge($validatedData, [
+                'imagem' => $caminhoImagem, // Adiciona a URL da imagem temporária
+            ]));
 
-        // Armazene o morador com a URL da imagem temporária
-        Morador::create(array_merge($validatedData, [
-            'imagem' => $caminhoImagem, // Adiciona a URL da imagem temporária
-        ]));
+            // Redireciona ou retorna uma resposta
+            return redirect()->route('moradores.index')->with('success', 'Morador cadastrado com sucesso!');
+        } catch (\Exception $e) {
+            // Registra o erro no log do Laravel
+            \Log::error('Erro ao cadastrar morador: ' . $e->getMessage(), ['exception' => $e]);
 
-        // Redireciona ou retorna uma resposta
-        return redirect()->route('moradores.index')->with('success', 'Morador cadastrado com sucesso!');
+            // Retorna uma resposta de erro para o usuário
+            return redirect()->back()->withErrors('Ocorreu um erro ao cadastrar o morador. Por favor, tente novamente.');
+        }
     }
 
     public function show($id)
