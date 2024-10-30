@@ -1,3 +1,12 @@
+@if ($errors->any())
+    <div class="bg-red-500 text-white p-4 mb-4 rounded">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <div class="mb-4">
     <label for="name" class="block text-gray-700">Nome</label>
     <input type="text" name="name" id="name" value="{{ old('name', $user->name ?? '') }}" required class="w-full p-2 border rounded">
@@ -14,6 +23,11 @@
     @if(isset($user))
         <small class="text-gray-600">Deixe em branco se não quiser alterar a senha</small>
     @endif
+</div>
+
+<div class="mb-4">
+    <label for="password_confirmation" class="block text-gray-700">Confirme a Senha</label>
+    <input type="password" name="password_confirmation" id="password_confirmation" class="w-full p-2 border rounded">
 </div>
 
 <div class="mb-4">

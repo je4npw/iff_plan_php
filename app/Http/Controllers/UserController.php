@@ -33,15 +33,15 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'nullable|string|min:8|confirmed',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'nullable|string|min:8|confirmed', // A senha pode ser nula se não for alterada
             'group_id' => 'required|exists:groups,id',
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
+            'password' => $validated['password'] ? bcrypt($validated['password']) : null,
             'group_id' => $validated['group_id'],
         ]);
 
