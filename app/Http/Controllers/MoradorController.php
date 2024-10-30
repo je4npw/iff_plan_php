@@ -4,17 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Morador;
 use App\Models\Unidade;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use Intervention\Image\Image;
-use Intervention\Image\ImageManager;
 
-/**
- * Class MoradorController
- * Controller responsável por lidar com a importação de dados de moradores a partir de um arquivo CSV.
- */
 class MoradorController extends Controller
 {
     public function index()
@@ -32,9 +25,8 @@ class MoradorController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validação da requisição
             $validatedData = $request->validate([
-                'imagem_temp' => 'nullable|url',
+                'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'nome' => 'required|string|max:255',
                 'data_cadastro' => 'required|date',
                 'data_nascimento' => 'required|date',
@@ -53,22 +45,18 @@ class MoradorController extends Controller
                 'tipo_de_vaga' => 'required|string|max:50',
             ]);
 
-            // Remove o domínio da URL da imagem
-            $url = parse_url($request->imagem_temp);
-            $caminhoImagem = $url['path']; // Obtém apenas o caminho
+            // Faz o upload da imagem, se for fornecida
+            if ($request->hasFile('imagem')) {
+                $imagePath = $request->file('imagem')->store('imagens_moradores', 'public');
+                $validatedData['imagem'] = $imagePath; // Adiciona o caminho da imagem ao array de dados validados
+            }
 
-            // Armazene o morador com a URL da imagem temporária
-            Morador::create(array_merge($validatedData, [
-                'imagem' => $caminhoImagem, // Adiciona a URL da imagem temporária
-            ]));
+            // Cria o registro do morador
+            Morador::create($validatedData);
 
-            // Redireciona ou retorna uma resposta
             return redirect()->route('moradores.index')->with('success', 'Morador cadastrado com sucesso!');
         } catch (\Exception $e) {
-            // Registra o erro no log do Laravel
             \Log::error('Erro ao cadastrar morador: ' . $e->getMessage(), ['exception' => $e]);
-
-            // Retorna uma resposta de erro para o usuário
             return redirect()->back()->withErrors('Ocorreu um erro ao cadastrar o morador. Por favor, tente novamente.');
         }
     }
@@ -86,8 +74,7 @@ class MoradorController extends Controller
 
     public function edit(Morador $morador)
     {
-        $unidades = Unidade::all(); // caso precise passar as unidades para a view
-
+        $unidades = Unidade::all();
         return view('moradores.edit', compact('morador', 'unidades'));
     }
 
@@ -106,48 +93,40 @@ class MoradorController extends Controller
                 'data_nascimento' => 'nullable|date_format:Y-m-d',
                 'profissao' => 'nullable|string|max:255',
                 'morador_de_rua' => 'required|boolean',
-                'tipo_de_vaga' => 'required|in:social,particular,convenio',
+                'tipo_de_vaga' => 'required|string|max:50',
                 'origem_da_busca' => 'nullable|string|max:255',
                 'convenio' => 'nullable|string|max:255',
-                'status' => 'required|in:ativo,inativo,triagem',
+                'status' => 'required|string|max:50',
                 'cidade' => 'nullable|string|max:255',
                 'nome_mae' => 'nullable|string|max:255',
                 'imagem' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ]);
 
-            // Verifica se uma nova imagem foi enviada
+            // Atualiza a imagem, se uma nova for enviada
             if ($request->hasFile('imagem')) {
-                // Remove a imagem antiga se existir
                 if ($morador->imagem) {
-                    Storage::delete('public/' . $morador->imagem);
+                    Storage::disk('public')->delete($morador->imagem); // Remove a imagem antiga
                 }
 
-                $image = $request->file('imagem');
-                $imagePath = 'moradores/' . uniqid() . '.' . $image->getClientOriginalExtension();
-
-                // Manipulação da imagem com Intervention
-                $img = Image::make($image->getRealPath())
-                    ->fit(300, 300, function ($constraint) {
-                        $constraint->upsize(); // Garante que a imagem não seja ampliada além do tamanho original
-                    })
-                    ->save(storage_path('app/public/' . $imagePath)); // Salva a imagem recortada
-
-                $validated['imagem'] = $imagePath; // Salva o caminho da nova imagem no banco de dados
+                $imagePath = $request->file('imagem')->store('imagens_moradores', 'public');
+                $validated['imagem'] = $imagePath; // Atualiza o caminho da imagem
             }
 
             // Atualiza o morador
             $morador->update($validated);
 
             return redirect()->route('moradores.index')->with('success', 'Morador atualizado com sucesso!');
-
         } catch (ValidationException $e) {
-            // Exibe os erros de validação
-            dd($e->validator->errors());
+            return redirect()->back()->withErrors($e->validator->errors());
         }
     }
 
     public function destroy(Morador $morador)
     {
+        if ($morador->imagem) {
+            Storage::disk('public')->delete($morador->imagem);
+        }
+
         $morador->delete();
 
         return redirect()->route('moradores.index')->with('success', 'Morador excluído com sucesso!');

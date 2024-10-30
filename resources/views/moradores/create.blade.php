@@ -99,7 +99,7 @@
                         <!-- Elemento para mostrar a imagem cropped -->
                         <div id="image-upload-preview" class="mt-4">
                             @if(session('imagem_temp'))
-                                <img src="{{ asset('storage/' . session('imagem_temp')) }}" alt="Imagem do Morador Temporária"
+                                <img src="{{ asset('storage/' . session('imagens_moradores')) }}" alt="Imagem do Morador Temporária"
                                      class="w-32 h-32 rounded-full">
                             @endif
                         </div>
@@ -108,21 +108,24 @@
                         <div x-show="open"
                              class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
                              style="display: none;">
-                            <div class="bg-white rounded-lg p-6 max-w-lg w-full overflow-hidden">
+                            <div class="bg-white rounded-lg p-6 max-w-lg w-full">
                                 <h5 class="text-lg font-bold mb-2">Cortar Imagem</h5>
-                                <img id="image-to-crop" style="max-width: 100%; max-height: 400px;">
-                                <div class="mt-4">
-                                    <button type="button" @click="cropImage"
-                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                        Cortar Imagem
-                                    </button>
-                                    <button type="button" @click="open = false; if (cropper) cropper.destroy();"
-                                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                                        Fechar
-                                    </button>
+                                <div class="flex flex-col items-center">
+                                    <img id="image-to-crop" style="max-width: 100%; max-height: 400px;">
+                                    <div class="mt-4 flex justify-between w-full">
+                                        <button type="button" @click="cropImage"
+                                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                            Cortar Imagem
+                                        </button>
+                                        <button type="button" @click="open = false; if (cropper) cropper.destroy();"
+                                                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                            Fechar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <input type="hidden" name="imagem_temp" id="imagem_temp" value="{{ session('imagem_temp') ?? '' }}"

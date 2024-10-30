@@ -10,7 +10,7 @@
 
                 <div class="grid grid-cols-4 gap-4 mb-4">
                     @if($morador->imagem)
-                        <img src="{{ asset($morador->imagem) }}" alt="Imagem do Morador"
+                        <img src="{{ asset('storage/' . $morador->imagem) }}" alt="Imagem do Morador"
                              class="w-32 h-32 rounded-full col-span-1">
                     @endif
                     <div id="image-upload" x-data="imageUploadHandler()" class="col-span-1">
@@ -23,12 +23,14 @@
 
                         <!-- Modal para Crop -->
                         <div x-show="open" @click.away="closeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" style="display: none;">
-                            <div class="bg-white rounded-lg p-6">
+                            <div class="bg-white rounded-lg p-6 max-w-md w-full">
                                 <h5 class="text-lg font-bold mb-2">Cortar Imagem</h5>
-                                <img x-ref="cropImage" :src="imageUrl" style="max-width: 100%;" @load="initializeCropper">
-                                <div class="mt-4">
-                                    <button type="button" @click="cropImage" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Cortar Imagem</button>
-                                    <button type="button" @click="closeModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Fechar</button>
+                                <div class="flex flex-col items-center">
+                                    <img x-ref="cropImage" :src="imageUrl" style="max-width: 100%; max-height: 60vh;" @load="initializeCropper">
+                                    <div class="mt-4 flex justify-between w-full">
+                                        <button type="button" @click="cropImage" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Cortar Imagem</button>
+                                        <button type="button" @click="closeModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Fechar</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
