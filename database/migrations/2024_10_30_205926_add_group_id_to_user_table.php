@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('group_id')->nullable()->constrained('groups')->onDelete('set null');
+            // Primeiro, adicione a coluna como unsignedBigInteger
+            $table->unsignedBigInteger('group_id')->nullable()->after('password');
+
+            // Agora, adicione a chave estrangeira
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('set null');
         });
     }
 
