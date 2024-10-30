@@ -19,9 +19,9 @@ class UnidadeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create()
     {
-       //
+        return view('unidades.create');
     }
 
     /**
@@ -36,7 +36,7 @@ class UnidadeController extends Controller
 
         Unidade::create($request->only('nome', 'cnpj'));
 
-        return redirect()->back()->with('success', 'Unidade criada com sucesso!');
+        return redirect()->route('unidades.index')->with('success', 'Unidade criada com sucesso!');
     }
 
     /**
@@ -44,7 +44,8 @@ class UnidadeController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $unidade = Unidade::findOrFail($id);
+        return view('unidades.show', compact('unidade'));
     }
 
     /**
@@ -52,7 +53,8 @@ class UnidadeController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $unidade = Unidade::findOrFail($id);
+        return view('unidades.edit', compact('unidade'));
     }
 
     /**
@@ -60,15 +62,25 @@ class UnidadeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'cnpj' => 'required|string|max:18|unique:unidades,cnpj,'.$id,
+        ]);
+
+        $unidade = Unidade::findOrFail($id);
+        $unidade->update($request->only('nome', 'cnpj'));
+
+        return redirect()->route('unidades.index')->with('success', 'Unidade atualizada com sucesso!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Unidade $unidade)
+    public function destroy(string $id)
     {
+        $unidade = Unidade::findOrFail($id);
         $unidade->delete();
-        return redirect()->back()->with('success', 'Unidade excluída com sucesso!');
+
+        return redirect()->route('unidades.index')->with('success', 'Unidade excluída com sucesso!');
     }
 }

@@ -41,9 +41,6 @@ Route::post('/moradores/import', [MoradorController::class, 'import'])
 Route::resource('moradores', MoradorController::class)->parameters([
     'moradores' => 'morador'
 ]);
-Route::get('/moradores', [MoradorController::class, 'index'])->name('moradores.index');
-Route::get('/moradores/{morador}/edit', [MoradorController::class, 'edit'])->name('moradores.edit');
-Route::get('/moradores/{morador}', [MoradorController::class, 'show'])->name('moradores.show');
 
 // imagem morador
 Route::post('/moradores/upload-imagem', [MoradorController::class, 'uploadImagem'])

@@ -2,6 +2,7 @@
 <div id="editUnitModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden">
     <div class="bg-white p-6 rounded shadow-lg w-1/3">
         <h2 class="text-2xl font-bold mb-4">Editar Unidade</h2>
+        @if(isset($unidade))
         <form action="{{ route('unidades.update', $unidade->id) }}" method="POST">
             @csrf
             @method('PUT')
@@ -22,6 +23,9 @@
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Atualizar Unidade</button>
             </div>
         </form>
+        @else
+            <p>Unidade não encontrada.</p>
+        @endif
     </div>
 </div>
 
