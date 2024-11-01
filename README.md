@@ -31,8 +31,8 @@ Siga os passos abaixo para configurar o projeto em sua máquina local:
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seuusuario/nome-do-repositorio.git
-   cd nome-do-repositorio
+   git clone https://github.com/je4npw/iff_plan_php.git
+   cd iff_plan_php
    ```
 
 2. Instale as dependências do projeto:
