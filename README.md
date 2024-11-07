@@ -2,7 +2,11 @@
 
 ## Descrição
 
-Este projeto é um sistema de gestão desenvolvido para auxiliar na administração de serviços de saúde em residenciais terapêuticos. O objetivo é fornecer uma plataforma que facilite o gerenciamento de informações, atendimentos e dados dos acolhidos, promovendo uma melhor organização e eficiência no atendimento.
+Este projeto é um protótipo para sistema de gestão desenvolvido para auxiliar na administração de serviços de saúde em residenciais terapêuticos. O objetivo é fornecer uma plataforma que facilite o gerenciamento de informações, atendimentos e dados dos acolhidos, promovendo uma melhor organização e eficiência no atendimento.
+
+Em 07/11/2024 ele será arquivado apenas para visualização - extensão universitária UNOPAR.
+
+Este projeto está sendo refatorado com Laravel 11 e Filament.
 
 ## Tecnologias Utilizadas
 
